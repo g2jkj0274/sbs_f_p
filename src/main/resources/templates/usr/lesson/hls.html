@@ -1,7 +1,8 @@
-<html layout:decorate="~{usr/common/layout}">
+<html layout:decorate="~{common/layout.html}">
 
 <head>
-    <title th:text="|강의 생성|"></title>
+    <title th:text="|${lecture.subject} - ${lesson.subject}|"></title>
+
     <link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet"/>
     <script src="https://vjs.zencdn.net/7.11.4/video.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-quality-levels/2.0.9/videojs-contrib-quality-levels.min.js"></script>
@@ -66,14 +67,17 @@
 
 <body>
 
-<div class="flex-1 flex flex-col items-center justify-center" layout:fragment="content">
-
-    <video id="video" class="video-js vjs-default-skin w-screen" style="height: calc(100vh - 100px);" controls
-           preload="auto" autoplay="autoplay"
-           data-setup='{}'>
-
-    </video>
-
+<div class="w-full relative" layout:fragment="content">
+    <div class="top-bar flex w-full h-16 bg-gray-800 -mt-4">
+        <div class="bg-gray-900 hover:bg-gray-700">
+            <a class="text-md text-gray-200 p-5 hidden lg:inline-block" th:href="|/usr/lesson/list/${lecture.id}|">< 목록으로</a>
+        </div>
+        <span class="title text-white text-lg p-5 hidden lg:inline-block">PART1</span>
+        <span class="title inline-block text-white text-lg p-5" th:text="${lesson.subject}">강의 제목이 들어 갈 자리 입니다.</span>
+    </div>
+    <div class="video-box border-2 w-2/3 h-[650px] mx-auto mt-24 hidden lg:block">
+        <video id="video" class="video-js vjs-default-skin w-full h-full" controls preload="auto" autoplay="autoplay" data-setup='{}'></video>
+    </div>
     <script th:inline="javascript">
 
         var player;
@@ -124,62 +128,447 @@
 
 
     </script>
-
-    <!--JHG ADD - sidebar-->
-    <div id="sidebar-content" style="width: 100%;">
-        <button onclick="showQnA()" style="border: 1px solid black;">QnA</button>
-        <button onclick="showCurriculum()" style="border: 1px solid black;">커리큘럼</button>
-
-        <div id="qna-content" style="display: none; border: 1px solid red;">
-            <p>여기는 QnA 내용입니다.</p>
-            <iframe th:src="'/usr/qna/q/videoInList/' + ${lessonId}" style="width: 100%; height: auto;"></iframe>
-            <button onclick="hideQnA()" style="background-color: green">닫기</button>
+    <div class="w-20 h-20 bg-gray-200 rounded-2xl border-gray-200 absolute top-96 right-0 hidden lg:block">
+        <button id="more_btn" onclick="toggleComment(this)" type="button" class="text-2xl ml-7 mt-6"><i class="fa-regular fa-comment"></i></button>
+    </div>
+    <!--아래는 사이드 버튼을 누르면 나오는 탭화면 입니다.-->
+    <div class="-mt-4 more-box w-[30%] h-[100vh] absolute top-0 right-0 bg-white hidden lg:block border border-gray-400">
+        <div class="flex">
+            <span class="inline-block text-lg font-bold p-6 whitespace-nowrap">학습보드</span>
+            <button class="w-full flex justify-end">
+            <span class="button1 text-2xl mt-2 mr-5 p-2">
+                <i class="fa-solid fa-xmark"></i>
+            </span>
+            </button>
         </div>
+        <div class="tab-btn">
+            <ul class="flex">
+                <li class="active block h-12 px-2 py-2 ml-2 inline-block hover:border-b-4 hover:border-blue-700"><a class="focus:font-semibold focus:text-blue-800 w-4/5" href="#">커리큘럼</a></li>
+                <li><a href="#" class="block btn2 h-12 ml-2 px-2 py-2 inline-block hover:border-b-4 hover:border-blue-700 focus:text-blue-800 focus:font-semibold">QNA</a></li>
+            </ul>
+        </div>
+        <div class="tab-cont">
+            <div id="tab1" class="cont block w-full h-24 border-b border-t border-gray-200" >
+                <span class="mt-5 ml-4 inline-block">학습목록</span>
+                <span class="text-blue-800 font-bold text-xl ml-2" th:text="${lesson.sortNo}">7</span>
+                <span>/</span>
+                <span class="text-gray-800 text-lg" th:text="${lecture.lessons.size}"></span>
+                <div class="flex w-[90%] mx-auto">
+                    <span class="text-sm mt-2 px-2 py-1 whitespace-nowrap">진도율</span>
+                    <progress class="progress w-56 mt-4" th:value="${lecture.getProgressRate(@lessonService.getSumPlaybackTime(lecture))}" max="100"></progress>
+                    <p class="text-xs p-3" th:utext="${lecture.getProgressRate(@lessonService.getSumPlaybackTime(lecture)) + '%'}"></p>
+                </div>
+                <div class="w-full mt-3 ">
+                    <button id="more_btn" onclick="toggleComment(this)" type="button" class="flex p-4 border-b border-gray-300 w-full">
+                        <span class="ml-4" th:text="${lecture.subject}"></span>
+                        <span class="ml-auto text-gray-500 mr-2 text-sm">
+                            <span th:text="${lecture.lessons.size}"></span> 강 /
+                            <span th:if="${lecture.totalLessonLengthPerHour != 0}" th:text="|${lecture.totalLessonLengthPerHour} 시간 |"></span>
+                            <span th:if="${lecture.totalLessonLengthPerMinute != 0}" th:text="|${lecture.totalLessonLengthPerMinute} 분|"></span>
+                        </span>
+                        <i class="fa-solid fa-angle-down mt-1"></i>
+                    </button>
+                    <div class="more_tab block">
+                        <div class="more-header cursor-pointer bg-gray-100">
+                            <div class="fix">
+                                <div th:each="lectureLesson : ${lecture.lessons}"
+                                     th:classappend="${lectureLesson.id} == ${lesson.id} ? 'bg-gray-600 text-white' : ''">
+                                    <a th:href="|/usr/lesson/hls/${lectureLesson.id}|" class="inline-block px-6 p-2 border-b border-gray-300 w-full hover:bg-gray-200">
+                                        <i th:if="${@lessonService.isLessonCompleted(lectureLesson.id, lectureLesson.lessonLength)}" class="fa-solid fa-circle-check"></i>
+                                        <i th:unless="${@lessonService.isLessonCompleted(lectureLesson.id, lectureLesson.lessonLength)}" class="fa-regular fa-circle-check"></i>
+                                        <span th:text="${lectureLesson.subject}"></span>
+                                        <span class="flex justify-end -mt-6 text-sm" th:text="${lectureLesson.lessonLengthForPrint}"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hidden border-t  border-gray-200">
+                <div class="w-[90%] mx-auto relative overflow-hidden border border-gray-300 bg-gray-100 text-sm mt-4 border-b border-t rounded-full">
+                    <input type="text" placeholder="질문을 입력해주세요." class=" py-2 pl-8 text-lg pr-4 bg-transparent focus:outline-none " />
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 ">
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                      </span>
+                </div>
+                <div style='box-shadow:2px 3px 5px 0px #d9d9d9' class="main h-32 w-[90%] border border-gray-200 rounded-2xl mx-auto mt-6">
+                    <div class="cate "><a href="#" class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">#자바</a></div>
+                    <div class="mt-4">
+                        <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
+                    </div>
+                    <div class="mt-2 w-full sm:w-3/5 flex ml-5">
+                        <span class="text-sm font-semibold text-gray-400">조회수 3</span>
+                        <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
+                        <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-box w-[100%] h-[100%] absolute top-0 right-0 bg-white hidden lg:block border border-gray-200">
+                <button class="w-full flex justify-end">
+                    <span class="button1 text-2xl mt-2 mr-5 p-2"><i class="fa-solid fa-xmark"></i></span>
+                </button>
+                <div class="w-5/6 border-b border-gray-400 mx-auto relative">
+                    <div class="cate "><a href="#" class="back-btn ml-2 mt-3 px-2 p-2 sm:text-sm text-xs whitespace-nowrap inline-block">뒤로가기</a></div>
+                    <div class="mt-4">
+                        <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
+                    </div>
+                    <div>
+                        <button id="write-btn" class="write-btn btn btn-sm ml-auto absolute right-8 top-2 hidden sm:inline">글쓰기<i class="fa-solid fa-pen"></i></button>
+                    </div>
+                    <div class="mt-2 w-full flex ml-5">
+                        <span class="text-sm font-semibold text-gray-400">조회수 3</span>
+                        <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
+                        <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
 
-        <div id="curriculum-content" style="display: none; display: none; border: 1px solid blue;">
-            <p>여기는 커리큘럼 내용입니다.</p>
-            <button onclick="hideCurriculum()" style="background-color: green">닫기</button>
+                    </div>
+                    <div class=" mt-14 ml-6"><a href="#" class="text-sm whitespace-nowrap">QNA 내용이 들어갈 자리입니다.</a></div>
+                    <button class="btn ml-5 mt-12 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                    </button>
+                </div>
+                <div class="comment text-sm flex p-2 mt-4 mb-4 w-3/4 mx-auto">
+           <span>
+             <p>댓글 작성 닉네임</p>
+             <p class="text-gray-500 text-center hidden sm:inline">1시간전</p>
+           </span>
+                    <span class="ml-4 mt-2 hidden sm:inline">댓글 내용입니다.</span>
+                    <!--아래는 댓글 수정 삭제 버튼 입니다.-->
+                    <div class=" ml-auto hidden sm:flex mt-1">
+                        <button class="btn btn-sm ml-auto ">수정</button>
+                        <button class="btn btn-error btn-sm ml-3">삭제</button>
+                    </div>
+                </div>
+            </div>
+            <!--글쓰기 버튼 누르면 나오는 글쓰기 화면입니다.-->
+            <div class="write-box overflow-scroll w-[100%] h-[100%] absolute top-0 right-0 bg-white hidden lg:block border border-gray-200">
+                <button class="w-full flex justify-end">
+                    <span class="button1 text-2xl mt-2 mr-5 p-2"><i class="fa-solid fa-xmark"></i></span>
+                </button>
+                <th:block th:replace="common/fragments :: toastuiEidtorLib"></th:block>
+                <span class="text-xl font-bold mt-3 ml-4">글쓰기</span>
+                <form method="POST" class="flex flex-col">
+                    <div class="flex p-2 mt-6">
+                        <span class="ml-1">공개여부</span>
+                        <label class="relative inline-flex items-center cursor-pointer ml-3">
+                            <input type="checkbox" value="" class="sr-only peer ">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-800"></div>
+                        </label>
+                    </div>
+                    <div class=" w-full py-4">
+                        <input class="w-full p-3 rounded-md outline-none focus:border-blue-800 bg-transparent placeholder:text-2xl" maxlength="100"
+                               name="subject" placeholder="제목을 입력해주세요." type="text">
+                    </div>
+                    <div class=" w-full p-2">
+                        <input class="w-full p-3 border border-gray-200 rounded-md outline-none focus:border-2 focus:border-blue-800" maxlength="100"
+                               name="tagsStr" placeholder="태그를 입력해주세요.`#자바 #파이썬 #풀스택 ...`" type="text">
+                    </div>
+                    <div placeholder=" " class="toast-ui-editor mx-auto w-[99%] mt-6" height="calc(100vh - 500px)"></div>
+
+                    <span class="p-2 ml-2 mt-3 text-sm">파일첨부 1</span>
+                    <input type="file" name="file-input-medium" id="file-input-medium" class="block w-[99%] ml-2 mt-1  border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-2 focus:border-blue-800 focus:ring-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600
+    file:bg-gray-50 file:border-0
+    file:bg-gray-100 file:me-4
+    file:py-3 file:px-4
+    dark:file:bg-gray-700 dark:file:text-gray-400">
+                    <span class="p-2 ml-2 mt-3 text-sm">파일첨부 2</span>
+                    <input type="file" name="file-input-medium" id="file-input-medium-2" class="block w-[99%] ml-2 mt-1 border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-2 focus:border-blue-800 focus:ring-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600
+    file:bg-gray-50 file:border-0
+    file:bg-gray-100 file:me-4
+    file:py-3 file:px-4
+    dark:file:bg-gray-700 dark:file:text-gray-400">
+                </form>
+                <div class="p-4 mt-2 lg:mt-2 flex justify-center">
+                    <a class="inline-block w-full text-center border border-blue-800 bg-blue-800 p-2 mb-3 mt-2 lg:mt-6 rounded-md hover:bg-blue-900">
+                        <button class="text-white">작성완료</button>
+                    </a>
+                </div>
+                <div class="back-btn flex justify-center">
+                    <a href="#" class="text-sm text-gray-500 ml-2 p-2">뒤로가기</a>
+                </div>
+
+                <script>
+                    let submitWriteFormDone = false;
+
+                    function submitWriteForm(form) {
+                        if (submitWriteFormDone) return;
+
+                        form.subject.value = form.subject.value.trim();
+
+                        if (form.subject.value.length == 0) {
+                            form.subject.focus();
+                            toastWarning('제목을 입력해주세요.');
+                            return;
+                        }
+
+                        if (form.subject.value.length < 2) {
+                            form.subject.focus();
+                            toastWarning('제목을 2자 이상 입력해주세요.');
+                            return;
+                        }
+
+                        const editor = $(form).find(".toast-ui-editor").data("data-toast-editor");
+
+                        const markdown = editor.getMarkdown().trim();
+                        const html = editor.getHTML().trim();
+
+                        form.body.value = markdown;
+                        form.bodyHtml.value = html;
+
+                        if (form.body.value.length == 0 || form.bodyHtml.value.length == 0) {
+                            toastWarning("내용을 입력해주세요");
+                            editor.focus();
+                            return;
+                        }
+                </script>
+            </div>
         </div>
     </div>
+    <!--아래는 반응형 모바일 화면 입니다.-->
+    <div class="flex flex-col w-full h-[100vh] mt-4 lg:hidden">
+        <div class="w-full h-72 md:h-3/4 -mt-4 lg:hidden bg-blue-100">
+            <!--동영상이 들어갈 자리 입니다.-->
+            <video id="video2" class="video-js vjs-default-skin w-full h-full" controls preload="auto" autoplay="autoplay" data-setup='{}'></video>
+        </div>
+        <script th:inline="javascript">
 
+            var player2;
+            var lessonId;
+
+            document.addEventListener("DOMContentLoaded", function() {
+
+                lessonId = /*[[${@rq.getPathVariableAsLong(3)}]]*/ 'default';
+
+                player2 = videojs('video2');
+                player2.ready(function() {
+                    player2.qualityLevels();
+                    player2.hlsQualitySelector({
+                        displayCurrentQuality : true ,
+                        getCurrentQuality : 'auto' ,
+                        sortAscending : false
+                    });
+
+                    // Thymeleaf를 사용하여 서버에서 받아온 재생 시점 값을 직접 변수에 할당합니다.
+                    var playbackTimeFromServer = /*[[${playbackTime} != null ? ${playbackTime} : 0]]*/;
+
+                    // Video.js 플레이어의 재생 위치를 서버에서 받아온 재생 시점 값으로 설정합니다.
+                    player2.currentTime(playbackTimeFromServer);
+                });
+
+                player2.src({
+                    src: /*[[${videoUrl}]]*/,
+                    type: 'application/x-mpegURL'
+                });
+            });
+
+
+
+            window.addEventListener('beforeunload', function() {
+                var currentTime = player2.currentTime();
+
+                // sendBeacon을 사용하여 서버에 데이터 전송
+                // sendBeacon을 사용한 이유
+                // 페이지가 언로드 되거나 사용자가 다른 활동을 시작할때도 데이터 전송을 보장한다.
+                // ajax 요청을 사용하면 페이지가 종료될 때 요청이 중단될 수 있다.
+                var data = new FormData();
+                data.append('currentTime', currentTime);
+                var endpoint = '/usr/lesson/' + lessonId + '/playbackTime';
+
+                navigator.sendBeacon(endpoint, data);
+            });
+        </script>
+        <div class="lg:hidden h-full w-full">
+            <section class="content1">
+                <div class="tab-menu">
+                    <div class="tab">
+                        <ul class="tabnav flex">
+                            <li class="active h-12 px-2 py-4 ml-2 inline-block hover:border-b-4 hover:border-blue-700"><a class="focus:font-semibold focus:text-blue-800 w-4/5" href="#tab01">커리큘럼</a></li>
+                            <li><a href="#tab02" class=" btn2 h-12 ml-2 px-2 py-4 inline-block hover:border-b-4 hover:border-blue-700 focus:text-blue-800 focus:font-semibold">QNA</a></li>
+                        </ul>
+                    </div>
+                    <div class="tabcontent">
+                        <div id="tab01" class="cont block w-full mt-4 h-24 border-b border-t border-gray-200" >
+                            <span class="mt-5 ml-4 inline-block">학습목록</span>
+                            <span class="text-blue-800 font-bold text-xl ml-2" th:text="${lesson.sortNo}">7</span>
+                            <span>/</span>
+                            <span class="text-gray-800 text-lg" th:text="${lecture.lessons.size}"></span>
+                            <div class="flex w-[90%] mx-auto">
+                                <span class="text-sm mt-2 px-2 py-1 whitespace-nowrap">진도율</span>
+                                <progress class="progress w-56 mt-4" th:value="${lecture.getProgressRate(@lessonService.getSumPlaybackTime(lecture))}" max="100"></progress>
+                                <p class="text-xs p-3" th:utext="${lecture.getProgressRate(@lessonService.getSumPlaybackTime(lecture)) + '%'}"></p>
+                            </div>
+                            <div class="w-full mt-3 ">
+                                <button id="more_btn" onclick="toggleComment(this)" type="button" class="flex p-4 border-b border-gray-300 w-full">
+                                    <span class="ml-4">Part 1</span>
+                                    <span class="ml-auto text-gray-500 mr-2 text-sm">
+                                        <span th:text="${lecture.lessons.size}"></span> 강 /
+                                        <span th:if="${lecture.totalLessonLengthPerHour != 0}" th:text="|${lecture.totalLessonLengthPerHour} 시간 |"></span>
+                                        <span th:if="${lecture.totalLessonLengthPerMinute != 0}" th:text="|${lecture.totalLessonLengthPerMinute} 분|"></span>
+                                    </span>
+                                    <i class="fa-solid fa-angle-down mt-1"></i>
+                                </button>
+                                <div class="more_tab block">
+                                    <div class="more-header cursor-pointer bg-gray-100">
+                                        <div class="fix">
+                                            <div th:each="lectureLesson : ${lecture.lessons}"
+                                                 th:classappend="${lectureLesson.id} == ${lesson.id} ? 'bg-gray-600 text-white' : ''">
+                                                <a th:href="|/usr/lesson/hls/${lectureLesson.id}|"
+                                                   class="inline-block px-6 p-2 border-b border-gray-300 w-full hover:bg-gray-200">
+                                                    <i th:if="${@lessonService.isLessonCompleted(lectureLesson.id, lectureLesson.lessonLength)}" class="fa-solid fa-circle-check"></i>
+                                                    <i th:unless="${@lessonService.isLessonCompleted(lectureLesson.id, lectureLesson.lessonLength)}" class="fa-regular fa-circle-check"></i>
+                                                    <span th:text="${lectureLesson.subject}"></span>
+                                                    <span class="flex justify-end -mt-6 text-sm" th:text="${lectureLesson.lessonLengthForPrint}"></span>
+                                                </a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab02" class="hidden border-t mt-4 border-gray-200">
+                            <div class="w-[90%] mx-auto relative overflow-hidden border border-gray-300 bg-gray-100 text-sm mt-4 border-b border-t rounded-full">
+                                <input type="text" placeholder="질문을 입력해주세요." class=" py-2 pl-8 text-lg pr-4 bg-transparent focus:outline-none " />
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 ">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </span>
+                            </div>
+                            <div style='box-shadow:2px 3px 5px 0px #d9d9d9' class="main h-32 w-[90%] border border-gray-200 rounded-2xl mx-auto mt-6">
+                                <div class="cate "><a href="#" class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">#자바</a></div>
+                                <div class="mt-4">
+                                    <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
+                                </div>
+                                <div class="mt-2 w-full sm:w-3/5 flex ml-5">
+                                    <span class="text-sm font-semibold text-gray-400">조회수 3</span>
+                                    <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
+                                    <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <!--아래는 모바일버전 게시판 클릭시 나타나는 글 입니다.-->
+        <div class="detail-box bg-white absolute flex flex-col w-full h-[100vh] -mt-4 hidden lg:hidden">
+            <div class="flex flex-row justify-end">
+                <button class="button1">
+                    <span class="text-2xl w-full flex mt-2 justify-end">
+                        <i class="fa-solid fa-xmark mr-3"></i>
+                    </span>
+                </button>
+            </div>
+            <div class="w-5/6 border-b border-gray-400 mx-auto">
+                <div>
+                    <button class="back-btn p-2 px-4 rounded-full bg-gray-100 hover:bg-gray-200 ml-4 lg:hidden inline"><i class="fa-solid fa-angle-left"></i></button>
+                </div>
+                <div class="cate "><a href="#" class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">#자바</a></div>
+                <div class="mt-4">
+                    <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
+                </div>
+
+                <div class="mt-2 w-full flex ml-5">
+                    <span class="text-sm font-semibold text-gray-400">조회수 3</span>
+                    <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
+                    <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
+
+                </div>
+                <div class=" mt-14 ml-6"><a href="#" class="text-sm whitespace-nowrap">QNA 내용이 들어갈 자리입니다.</a></div>
+                <button class="btn ml-5 mt-12 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                </button>
+            </div>
+            <div class="comment text-sm flex p-2 mt-4 mb-4 w-3/4 mx-auto">
+           <span>
+             <p>닉네임</p>
+             <p class="text-gray-500 text-center lg:hidden inline">1시간전</p>
+           </span>
+                <span class="ml-4 mt-2 lg:hidden inline">댓글 내용입니다.</span>
+                <!--아래는 댓글 수정 삭제 버튼 입니다.-->
+                <div class=" ml-auto lg:hidden flex mt-1">
+
+                    <button class="btn btn-sm ml-auto ">수정</button>
+                    <button class="btn btn-error btn-sm ml-3">삭제</button>
+                </div>
+            </div>
+            <div>
+                <button class="write-box btn btn-md ml-auto absolute right-8 bottom-24 lg:hidden inline"><i class="fa-solid fa-pen"></i></button>
+            </div>
+        </div>
+    </div>
     <script>
-        function showQnA() {
-            var qnaContent = document.getElementById('qna-content');
-            var curriculumContent = document.getElementById('curriculum-content');
+        $(function(){
+            $("#more_btn").click(function(){
+                $(".more-box").show();
+            });
+            $(".button1").click(function(){
+                $(".more-box").hide();
+            });
+            $(".main").click(function(){
+                $(".detail-box").show();
+            });
+            $(".button1").click(function(){
+                $(".detail-box").hide();
+            });
+            $(".back-btn").click(function(){
+                $(".detail-box").hide();
+                $(".write-box").hide();
+                $(".detail-box").hide();
+            });
+            $("#write-btn").click(function(){
+                $(".write-box").show();
+            });
+            $(".button1").click(function(){
+                $(".write-box").hide();
+            });
+        });
 
-            if (qnaContent.style.display === 'none' || qnaContent.style.display === '') {
-                qnaContent.style.display = 'block';
-                curriculumContent.style.display = 'none';
+        document.addEventListener("DOMContentLoaded", function() {
+            var tabElement = document.getElementById("detail-box");
+            if (tabElement) {
+                tabElement.classList.add("hidden");
+            }
+        });
+
+        <!--아래는 강의목록 토글입니다.-->
+        function toggleComment(button) {
+            const content = button.nextElementSibling;
+
+            if (content.style.display === 'block') {
+                content.style.display = 'none'; // 열려있을 때 닫습니다.
             } else {
-                qnaContent.style.display = 'none';
+                content.style.display = 'block'; // 닫혀있을 때 엽니다.
             }
         }
 
-        function showCurriculum() {
-            var qnaContent = document.getElementById('qna-content');
-            var curriculumContent = document.getElementById('curriculum-content');
+        <!--아래는 탭메뉴 입니다.-->
+        window.onload = function(){
+            const tabBtn = document.querySelectorAll(".tab-btn > ul > li");
+            const tabCont = document.querySelectorAll(".tab-cont > div");
 
-            if (curriculumContent.style.display === 'none' || curriculumContent.style.display === '') {
-                curriculumContent.style.display = 'block';
-                qnaContent.style.display = 'none';
-            } else {
-                curriculumContent.style.display = 'none';
-            }
-        }
+            tabCont.forEach(el => el.style.display = "none");
+            tabCont[0].style.display = "block";
 
-        function hideQnA() {
-            document.getElementById('qna-content').style.display = 'none';
-        }
+            tabBtn.forEach((tab, index) => {
+                tab.addEventListener("click", () => {
+                    tabBtn.forEach(tab => tab.classList.remove("active"));
+                    tab.classList.add("active");
 
-        function hideCurriculum() {
-            document.getElementById('curriculum-content').style.display = 'none';
-        }
+                    tabCont.forEach(cont => cont.style.display = "none");
+                    tabCont[index].style.display = "block";
+                });
+            });
+        };
+        $(function(){
+            $('.tabcontent > div').hide();
+            $('.tabnav a').click(function () {
+                $('.tabcontent > div').hide().filter(this.hash).fadeIn();
+                $('.tabnav a').removeClass('active');
+                $(this).addClass('active');
+                return false;
+            }).filter(':eq(0)').click();
+        });
     </script>
-    <!--JHG ADD - sidebar-->
-
 </div>
-
 </body>
-
-
 </html>

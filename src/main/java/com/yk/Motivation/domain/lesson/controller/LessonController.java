@@ -266,6 +266,10 @@ public class LessonController {
         Optional<LessonPlaybackTime> playbackTimeOpt = lessonService.findPlaybackTimeByMember(rq.getMember(), lesson);
         Integer playbackTime = playbackTimeOpt.map(LessonPlaybackTime::getPlaybackTime).orElse(null);
 
+        Lecture lecture = lesson.getLecture();
+
+        model.addAttribute("lecture", lecture);
+        model.addAttribute("lesson", lesson);
         model.addAttribute("videoUrl", masterPlayListPath);
         model.addAttribute("playbackTime",playbackTime);
         return "usr/lesson/hls";
