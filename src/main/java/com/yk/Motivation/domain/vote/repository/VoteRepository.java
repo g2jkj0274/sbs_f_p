@@ -10,4 +10,8 @@ import java.util.Optional;
 public interface VoteRepository extends JpaRepository<Vote, Long> {
     boolean existsByNickNameAndArticleId(String nickName, Long articleId);
     Optional<Vote> findByNickNameAndArticleId(String nickName, Long articleId);
+
+    boolean existsByNickNameAndQuestionId(String nickName, Long questionId);
+    Optional<Vote> findByNickNameAndQuestionId(String nickName, Long questionId);
+
 }

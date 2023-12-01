@@ -11,81 +11,66 @@
 
 <body>
 
-<div th:fragment="qnaContent" class="flex-1 flex items-center justify-center" layout:fragment="content">
-    <div class="container w-full px-4">
-        <h1 class="mb-4">
-            <i class="fa-solid fa-cubes"></i>
-            <span th:text="|QnA 게시판|"></span>
-        </h1>
-
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-                <div class="detail grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-3">
-                    <div class="overflow-x-auto">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th style="text-align: left">ID</th>
-                                <th style="text-align: left">제목</th>
-                                <th style="text-align: left">상태</th>
-                                <th style="text-align: left">기록</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="question, stat : ${questionPage.content}">
-                                <td>
-                                    <span th:text="${question.id}"></span>
-                                </td>
-                                <td>
-                                    <a th:href="@{/usr/qna/q/videoInDetail/{id}(id=${question.id},lessonId=${lessonId})}" th:text="${question.subject}"></a>
-                                </td>
-                                <td>
-                                    <th:block th:if="${hasAnswersByOthersList[stat.index]}">답변 완료</th:block>
-                                    <th:block th:if="${!hasAnswersByOthersList[stat.index]}">대기중...</th:block>
-                                </td>
-                                <td>
-                                    <h5 th:text="|${#lists.size(question.answerList)}개의 기록이 있습니다.|"></h5>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <script>
-                    let currentPage = 1;
-                    let isFetching = false;
-
-                    window.onscroll = function() {
-                        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 10 && !isFetching) {
-                            isFetching = true;
-                            loadMoreData();
-                        }
-                    };
-
-                    function loadMoreData() {
-                        fetch(`/usr/qna/q/videoInList/${lessonId}?page=${currentPage}`)
-                            .then(response => response.text())
-                            .then(html => {
-                                const parser = new DOMParser();
-                                const doc = parser.parseFromString(html, "text/html");
-                                const rows = doc.querySelectorAll("table tbody tr");
-                                const table = document.querySelector("table tbody");
-                                rows.forEach(row => table.appendChild(row));
-                                currentPage++;
-                                isFetching = false;
-                            })
-                            .catch(error => console.error('Error:', error));
-                    }
-                </script>
-
-                <div th:if="${@rq.login}">
-                    <!-- lectureId와 lessonId를 쿼리 파라미터로 추가 -->
-                    <a th:href="@{/usr/qna/q/videoInCreate(lectureId=${lectureId},lessonId=${lessonId})}" class="btn btn-primary">질문 등록하기 테스트</a>
-                </div>
-
+<div th:fragment="qnaContent" layout:fragment="content">
+    <div class="border-t border-none">
+        <div class="w-[90%] mx-auto relative overflow-hidden border border-gray-300 bg-gray-100 text-sm mt-4 border-b border-t rounded-full">
+            <form action="#">
+                <input type="search" th:value="${param.kw}" placeholder="질문을 입력해주세요." class=" py-2 pl-8 text-lg pr-4 bg-transparent focus:outline-none"/>
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 ">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+            </form>
+        </div>
+        <div th:each="question, stat : ${questionPage.content}" style='box-shadow:2px 3px 5px 0px #d9d9d9' class="main h-32 w-[90%] border border-gray-200 rounded-2xl mx-auto mt-6">
+            <div class="cate">
+                <!--lectureId-->
+                <span th:if="${lectureId != null}" th:text="'Lecture ID: ' + ${question.lecture.id}" href="#"
+                      class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">
+                </span>
+                <span th:if="${lessonId != null}" th:text="'Lesson ID: ' + ${question.lesson.id}" href="#"
+                      class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">
+                </span>
+                <span th:if="${lectureId != null}" th:text="${question.createDate}" href="#"
+                      class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">
+                </span>
+            </div>
+            <div class="mt-4">
+                <a th:href="@{/usr/qna/q/videoInDetail/{id}(id=${question.id},lessonId=${lessonId})}" th:text="${question.subject}"
+                   class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4"></a>
+            </div>
+            <div class="mt-2 w-full sm:w-3/5 flex ml-5">
+                <span th:text="'조회수 ' + ${question.viewCount}" class="text-sm font-semibold text-gray-400"></span>
+                <span th:text="${question.member.nickname}" class="text-sm ml-4 whitespace-nowrap"></span>
+                <span th:text="${question.formattedDate}" class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap"></span>
             </div>
         </div>
+        <script>
+            let currentPage = 1;
+            let isFetching = false;
+
+            window.onscroll = function() {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 10 && !isFetching) {
+                    isFetching = true;
+                    loadMoreData();
+                }
+            };
+
+            function loadMoreData() {
+                fetch(`/usr/qna/q/videoInList/${lessonId}?page=${currentPage}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, "text/html");
+                        // 새로운 데이터를 'div' 요소로 추가하는 방식으로 변경
+                        const newQuestions = doc.querySelectorAll(".main"); // 예시로 '.main' 클래스를 사용
+                        const questionsContainer = document.querySelector(".border-t"); // 질문들을 포함하는 컨테이너
+                        newQuestions.forEach(question => questionsContainer.appendChild(question));
+                        currentPage++;
+                        isFetching = false;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        </script>
     </div>
 </div>
 

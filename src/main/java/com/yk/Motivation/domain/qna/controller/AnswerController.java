@@ -38,7 +38,7 @@ public class AnswerController {
         return rq.redirectOrBack("/usr/qna/q/detail/%s".formatted(id), saveRs);
     }
 
-    @PostMapping("/videoInCreateAnswer/{id}")
+    /*@PostMapping("/videoInCreateAnswer/{id}")
     public String videoInCreateAnswer(@PathVariable("id") Long id, @RequestParam String content, @RequestParam(name = "lessonId", required = false) Long lessonId) {
         Member loginedMember = rq.getMember();
         Question question = this.questionService.getQuestion(id);
@@ -46,6 +46,23 @@ public class AnswerController {
         Answer answer = new Answer();
         answer.setMember(loginedMember);
         answer.setContent(content);
+        answer.setQuestion(question);
+
+        RsData<Answer> saveRs = answerService.save(answer);
+        return rq.redirectOrBack("/usr/qna/q/videoInDetail/%s?lessonId=%d".formatted(id, lessonId), saveRs);
+    }*/
+    @PostMapping("/videoInCreateAnswer/{id}")
+    public String videoInCreateAnswer(@PathVariable("id") Long id,
+                                      @RequestParam String content,
+                                      @RequestParam String contentHtml,
+                                      @RequestParam(name = "lessonId", required = false) Long lessonId) {
+        Member loginedMember = rq.getMember();
+        Question question = this.questionService.getQuestion(id);
+
+        Answer answer = new Answer();
+        answer.setMember(loginedMember);
+        answer.setContent(content); // 마크다운 내용 설정
+        answer.setContentHtml(contentHtml);         // HTML 내용 설정
         answer.setQuestion(question);
 
         RsData<Answer> saveRs = answerService.save(answer);

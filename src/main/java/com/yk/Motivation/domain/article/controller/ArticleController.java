@@ -58,7 +58,7 @@ public class ArticleController {
 
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("id"));
-        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(sorts));
+        Pageable pageable = PageRequest.of(page - 1, 5, Sort.by(sorts));
         Page<Article> articlePage = articleService.findByKw(board, kwType, kw, pageable);
         model.addAttribute("articlePage", articlePage);
 

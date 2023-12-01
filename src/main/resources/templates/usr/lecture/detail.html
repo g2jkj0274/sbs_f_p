@@ -84,34 +84,6 @@
                     </div>
                 </div>
             </div>
-
-            <!--JHG ADD - Test url Set-->
-            <div class="card bg-base-100 shadow-xl " th:if="${lecture.lessonsReady}">
-                <div class="card-body">
-                    <div class="detail grid grid-rows-[repeat(auto-fit,minmax(70px,1fr))] gap-3">
-                        <div th:each="lesson : ${lessons}" class="text-left my-4 flex flex-row">
-                            <span class="btn btn-active btn-neutral mr-2 -ml-4 flex-none" th:text="|${lesson.sortNo} 강 |"></span>
-                            <a th:href="|/usr/lesson/hls/${lesson.id}|" class="text-left btn btn-outline w-[160px] mr-2 max-w-[160px] flex-grow"
-                               th:text="${lesson.subject}">
-                            </a>
-                            <span class="btn btn-active btn-neutral mr-2 flex-none" th:text="${lesson.lessonLengthForPrint}"></span>
-                        </div>
-                    </div>
-                    <div class="flex flex-row justify-center">
-                        <div class="text-center">
-                            <a th:if="${@lectureService.checkProducerCanModify(@rq.member, lecture).success} and !${lessons.isEmpty()}"
-                               class="btn btn-link"
-                               th:href="|/usr/lesson/${lecture.id}/modify|">커리큘럼 수정</a>
-                        </div>
-                        <div class="text-center">
-                            <a th:if="${@lectureService.checkProducerCanModify(@rq.member, lecture).success} and ${lessons.isEmpty()}"
-                               class="btn btn-link"
-                               th:href="|/usr/lesson/${lecture.id}/write|">커리큘럼 등록</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--JHG ADD - Test url Set-->
         </div>
     </div>
     <script>

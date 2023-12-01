@@ -6,84 +6,81 @@
 
 <body>
 
-<div class="flex-1 flex items-center justify-center" layout:fragment="content">
+<div layout:fragment="content">
     <th:block th:replace="common/fragments :: toastuiEidtorLib"></th:block>
+    <div class="w-5/6 border-b border-gray-400 mx-auto relative">
+        <div class="cate ">
+            <a th:href="@{/usr/qna/q/videoInList/{lessonId}(lessonId=${lessonId})}" class="back-btn ml-2 mt-3 px-2 p-2 sm:text-sm text-xs whitespace-nowrap inline-block">뒤로가기</a>
+        </div>
+        <div class="mt-4">
+            <a th:text="${question.subject}" class="text-md sm:text-xl font-semibold whitespace-nowrap ml-4"></a>
+        </div>
+        <div>
+            <a th:href="@{/usr/qna/q/videoInCreate(lectureId=${lectureId},lessonId=${lessonId})}"
+                    id="write-btn" class="write-btn btn btn-sm ml-auto absolute right-8 top-2 hidden sm:inline">글쓰기<i class="fa-solid fa-pen"></i></a>
+        </div>
+        <div class="mt-2 w-full flex ml-5">
+            <span th:text="'조회수 ' + ${question.viewCount}" class="text-sm font-semibold text-gray-400"></span>
+            <span th:text="${question.member.nickname}" class="text-sm ml-4 whitespace-nowrap"></span>
+            <span th:text="${question.formattedDate}" class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap"></span>
+        </div>
+        <div class=" mt-14 ml-6">
+            <span th:utext="${question.bodyHtml}" href="#" class="toastui-editor-bodys text-sm whitespace-nowrap"></span>
+        </div>
 
-    <div class="container w-full px-4"> <!-- 컨테이너 시작 -->
-        <h1 class="mb-4">
-            <i class="fa-regular fa-file-word"></i> <!-- 아이콘 -->
-            <span th:text="|${question.id} 질문|"></span> <!-- 게시판 이름 -->
-        </h1>
-        <div class="card bg-base-100 shadow-xl"> <!-- 카드 스타일 시작 -->
-            <div class="card-body"> <!-- 카드 내용 시작 -->
-                <div class="detail grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-3"> <!-- 그리드 레이아웃 시작 -->
-                    <!-- 각 정보 영역 시작: 게시물 번호, 작성일, 작성자, 제목, 태그, 내용, 첨부파일 -->
-                    <!-- (이후의 div들은 유사한 구조를 갖는 정보 영역입니다.) -->
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">질문 번호</span>
-                        </label>
-                        <div th:text="${question.id}"></div>
-                    </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">제목</span>
-                        </label>
-                        <div th:text="${question.subject}"></div>
-                    </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">작성자</span>
-                        </label>
-                        <div th:text="${question.member.nickname}"></div>
-                    </div>
-                    <div class="form-control col-span-full">
-                        <label class="label">
-                            <span class="label-text">내용</span>
-                        </label>
-                        <div class="toastui-editor-bodys"
-                             style="overflow-wrap: break-word;"
-                             th:utext="${question.body}">
-                        </div>
-                        <label class="label">
-                            <span class="label-text">내용테스트</span>
-                        </label>
-                        <div class="toastui-editor-bodys"
-                             style="overflow-wrap: break-word;"
-                             th:utext="${question.bodyHtml}">
-                        </div>
-                    </div>
-                </div>
+        <!--<div style="text-align: right;">
+            <a th:if="${@questionService.checkActorCanModify(@rq.member, question).success}"
+               class="text-sm text-gray-500 ml-2 p-2" th:href="@{/usr/qna/q/videoInModify/{id}(id=${question.id}, lessonId=${lessonId})}">수정</a>
+            <a th:if="${@questionService.checkActorCanModify(@rq.member, question).success}"
+               onclick="return confirm('정말로 삭제하시겠습니까?');"
+               class="text-sm text-gray-500 ml-2 p-2" th:href="@{/usr/qna/q/videoInDelete/{id}(id=${question.id}, lessonId=${lessonId})}">삭제</a>
+        </div>-->
+    </div>
 
-                <div class="mt-6"> <!-- 버튼 그룹 시작 -->
-                    <div class="text-center"> <!-- 중앙 정렬 -->
-                        <a th:if="${@questionService.checkActorCanModify(@rq.member, question).success}"
-                           class="btn btn-link" th:href="@{/usr/qna/q/videoInModify/{questionId}(questionId=${question.id}, lessonId=${lessonId})}">수정</a>
-                        <a th:if="${@questionService.checkActorCanModify(@rq.member, question).success}"
-                           onclick="return confirm('정말로 삭제하시겠습니까?');"
-                           class="btn btn-link" th:href="@{/usr/qna/q/videoInDelete/{questionId}(questionId=${question.id}, lessonId=${lessonId})}">삭제</a>
-                        <a class="btn btn-link" th:href="@{/usr/qna/q/videoInList/{lessonId}(lessonId=${lessonId})}">목록</a>
-                    </div>
-                </div>
+    <div th:each="answer : ${question.answerList}" class="comment text-sm flex p-2 mt-4 mb-4 w-3/4 mx-auto">
+        <span>
+            <p th:text="${answer.member.nickname}"></p>
+            <p th:text="${answer.formattedDate}" class="text-gray-500 text-center sm:inline" style="text-align:left"></p>
+        </span>
+        <span th:utext="${answer.contentHtml}" class="ml-4 mt-2 sm:inline"></span>
+    </div>
 
-                <!--Comment-->
-                <h5 th:text="|${#lists.size(question.answerList)}개의 답변이 있습니다.|"></h5>
-                <div>
-                    <ul>
-                        <li th:each="answer : ${question.answerList}" th:text="${answer.content}"></li>
-                    </ul>
-                </div>
-                <div th:if="${@rq.login}">
-                    <div th:if="${@questionService.checkActorCanModify(@rq.member, question).success or @rq.isProducer()}">
-                        <form th:action="@{|/usr/qna/a/videoInCreateAnswer/${question.id}|}" method="post">
-                            <textarea class="textarea textarea-bordered w-full" name="content" placeholder="답변을 입력하세요."></textarea>
-                            <input type="hidden" name="lessonId" th:value="${lessonId != null ? lessonId : 0}" />
-                            <button type="submit" class="btn btn-primary mt-2">답변 등록</button>
-                        </form>
-                    </div>
-                </div>
+    <div th:if="${@rq.login}">
+        <div th:if="${@questionService.checkActorCanModify(@rq.member, question).success or @rq.isProducer()}" class="comment text-sm flex p-2 mt-4 mb-4 mx-auto flex flex-col gap-6">
+            <form th:action="@{|/usr/qna/a/videoInCreateAnswer/${question.id}|}" method="post" onsubmit="submitAnswerForm(this); return false;">
+                <input type="hidden" name="content">
+                <input type="hidden" name="contentHtml">
+                <input type="hidden" name="lessonId" th:value="${lessonId != null ? lessonId : 0}" />
 
-            </div>
+                <div class="form-control">
+                    <div class="toast-ui-editor" height="calc(100vh - 200px)" placeholder="내용"></div>
+                </div>
+                <div class="w-full flex justify-end py-2">
+                    <button type="submit" class="btn btn-sm">
+                        <span th:if="${@rq.isProducer()}">답글 등록</span>
+                        <span th:unless="${@rq.isProducer()}">댓글 등록</span>
+                    </button>
+                </div>
+            </form>
+            <script>
+                function submitAnswerForm(form) {
+                    const editor = $(form).find(".toast-ui-editor").data("data-toast-editor");
+
+                    const markdown = editor.getMarkdown().trim();
+                    const html = editor.getHTML().trim();
+
+                    form.content.value = markdown;
+                    form.contentHtml.value = html;
+
+                    if (form.content.value.length == 0 || form.contentHtml.value.length == 0) {
+                        toastWarning("내용을 입력해주세요");
+                        editor.focus();
+                        return;
+                    }
+
+                    form.submit();
+                }
+            </script>
         </div>
     </div>
 </div>

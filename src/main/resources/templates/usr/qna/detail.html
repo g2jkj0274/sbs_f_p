@@ -63,9 +63,7 @@
                                             <p th:text="${answer.member.nickname}"></p>
                                             <p th:text="${answer.formattedDate}" class="text-gray-500 text-center hidden sm:inline"></p>
                                         </span>
-                                        <span class="mt-2 sm:mt-0 sm:ml-16">
-                                            <p th:text="${answer.content}" style="word-break: break-all;"></p>
-                                        </span>
+                                        <span th:utext="${answer.contentHtml}" class="ml-4 mt-2 sm:inline"></span>
                                     </div>
                                 </div>
                             </div>
@@ -73,7 +71,7 @@
                         </div>
                     </div>
 
-                    <div th:if="${@rq.login}">
+                    <!--<div th:if="${@rq.login}">
                         <div th:if="${@questionService.checkActorCanModify(@rq.member, question).success or @rq.isProducer()}">
                             <form th:action="@{|/usr/qna/a/create/${question.id}|}" method="post">
                                 <textarea name="content" placeholder="답변을 입력해주세요." cols="50" class="placeholder:text-sm textarea textarea-bordered textarea-lg w-full"></textarea>
@@ -81,6 +79,43 @@
                                     <button type="submit" class="btn btn-sm">답변 등록</button>
                                 </div>
                             </form>
+                        </div>
+                    </div>-->
+                    <div th:if="${@rq.login}">
+                        <div th:if="${@questionService.checkActorCanModify(@rq.member, question).success or @rq.isProducer()}" class="comment text-sm flex p-2 mt-4 mb-4 mx-auto flex flex-col gap-6">
+                            <form th:action="@{|/usr/qna/a/create/${question.id}|}" method="post" onsubmit="submitAnswerForm(this); return false;">
+                                <input type="hidden" name="content">
+                                <input type="hidden" name="contentHtml">
+
+                                <div class="form-control">
+                                    <div class="toast-ui-editor" height="calc(100vh - 200px)" placeholder="내용"></div>
+                                </div>
+                                <div class="w-full flex justify-end py-2">
+                                    <button type="submit" class="btn btn-sm">
+                                        <span th:if="${@rq.isProducer()}">답글 등록</span>
+                                        <span th:unless="${@rq.isProducer()}">댓글 등록</span>
+                                    </button>
+                                </div>
+                            </form>
+                            <script>
+                                function submitAnswerForm(form) {
+                                    const editor = $(form).find(".toast-ui-editor").data("data-toast-editor");
+
+                                    const markdown = editor.getMarkdown().trim();
+                                    const html = editor.getHTML().trim();
+
+                                    form.content.value = markdown;
+                                    form.contentHtml.value = html;
+
+                                    if (form.content.value.length == 0 || form.contentHtml.value.length == 0) {
+                                        toastWarning("내용을 입력해주세요");
+                                        editor.focus();
+                                        return;
+                                    }
+
+                                    form.submit();
+                                }
+                            </script>
                         </div>
                     </div>
                 </div>

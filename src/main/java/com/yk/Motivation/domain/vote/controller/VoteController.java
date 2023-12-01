@@ -1,6 +1,7 @@
 package com.yk.Motivation.domain.vote.controller;
 
 import com.yk.Motivation.domain.article.entity.Article;
+import com.yk.Motivation.domain.qna.entity.Question;
 import com.yk.Motivation.domain.vote.entity.Vote;
 import com.yk.Motivation.domain.vote.service.VoteService;
 import lombok.RequiredArgsConstructor;

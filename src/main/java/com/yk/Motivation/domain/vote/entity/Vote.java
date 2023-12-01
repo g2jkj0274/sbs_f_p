@@ -2,6 +2,7 @@ package com.yk.Motivation.domain.vote.entity;
 
 import com.yk.Motivation.base.jpa.baseEntity.BaseEntity;
 import com.yk.Motivation.domain.article.entity.Article;
+import com.yk.Motivation.domain.qna.entity.Question;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,4 +26,8 @@ public class Vote extends BaseEntity {
     private Article article;
 
     private String nickName; // member는 nickname만 기록
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id")
+    private Question question;
 }

@@ -15,10 +15,7 @@
     <th:block th:replace="common/fragments :: toastuiEidtorLib"></th:block>
 
     <div class="container w-full px-4">
-        <h1 class="mb-4">
-            <i class="fa-solid fa-cubes"></i>
-            <span th:text="|Question modify|"></span>
-        </h1>
+        <span class="text-xl font-bold mt-3 ml-4">수정하기</span>
 
         <form class="flex flex-col gap-6" method="POST" th:action="@{/usr/qna/q/videoInModify/{id}(id=${question.id})}" th:object="${question}" onsubmit="submitQuestionForm(this); return false;">
             <input type="hidden" name="_method" value="PUT" />
@@ -26,11 +23,9 @@
             <input type="hidden" name="bodyHtml">
             <input type="hidden" name="lessonId" th:value="${lessonId}">
 
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">제목</span>
-                </label>
-                <input class="input input-bordered" maxlength="100" name="subject" placeholder="제목" th:value="*{subject}" type="text" autofocus>
+            <div class="form-control w-full py-4">
+                <input class="w-full p-3 rounded-md outline-none focus:border-blue-800 bg-transparent placeholder:text-2xl" maxlength="100"
+                       th:value="*{subject}" name="subject" placeholder="제목을 입력해주세요." type="text">
             </div>
 
             <div class="form-control">
@@ -41,14 +36,16 @@
             </div>
 
             <div class="flex flex-col gap-2">
-                <button class="btn btn-block btn-primary gap-1">
-                    <i class="fa-solid fa-pen"></i>
-                    <span>수정하기</span>
-                </button>
+                <a class="inline-block w-full text-center border border-blue-800 bg-blue-800 p-2 mb-3 mt-2 lg:mt-6 rounded-md hover:bg-blue-900">
+                    <button class="text-white">수정완료</button>
+                </a>
+            </div>
 
-                <div class="text-center">
-                    <a class="btn btn-link" th:href="@{/usr/qna/q/videoInList/{lessonId}(lessonId=${lessonId})}">목록</a>
-                </div>
+            <!--<div class="back-btn flex justify-center">
+                <a class="text-sm text-gray-500 ml-2 p-2" th:href="@{/usr/qna/q/videoInList/{lessonId}(lessonId=${lessonId})}">목록</a>
+            </div>-->
+            <div class="back-btn flex justify-center">
+                <a class="text-sm text-gray-500 ml-2 p-2" th:href="@{/usr/qna/q/videoInDetail/{id}(id=${question.id},lessonId=${lessonId})}">뒤로가기</a>
             </div>
         </form>
 

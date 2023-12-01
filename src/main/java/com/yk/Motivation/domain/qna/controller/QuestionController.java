@@ -123,7 +123,7 @@ public class QuestionController {
 
     // 비디오 페이지 안의 QnA List
     @GetMapping("/videoInList/{lessonId}")
-    public String videoInList(Model model, @PathVariable long lessonId, @PageableDefault(size = 5) Pageable pageable) {
+    public String videoInList(Model model, @PathVariable long lessonId, @PageableDefault(size = 7) Pageable pageable) {
         Member currentMember = rq.getMember();
         Lesson lesson = lessonService.findById(lessonId).orElse(null);
 
@@ -154,6 +154,15 @@ public class QuestionController {
         question.setViewCount(question.getViewCount() + 1);
         questionService.save(question); // 증가된 조회수를 저장
         model.addAttribute("question", question);
+
+        Lesson lesson = lessonService.findById(lessonId).orElse(null);
+
+        // 레슨에서 강의 정보를 가져옵니다.
+        Lecture lecture = lesson.getLecture();
+        long lectureId = lecture.getId();
+        // 모델에 강의 ID와 레슨 ID를 추가합니다.
+        model.addAttribute("lectureId", lectureId);
+        model.addAttribute("lessonId", lessonId);
 
         // lessonId가 제공되었다면 모델에 추가
         if (lessonId != null) {

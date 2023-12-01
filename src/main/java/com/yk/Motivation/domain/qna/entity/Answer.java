@@ -25,6 +25,8 @@ public class Answer extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;  // 답변 내용
+    @Column(columnDefinition = "TEXT")
+    private String contentHtml;
 
     @ManyToOne
     private Member member;

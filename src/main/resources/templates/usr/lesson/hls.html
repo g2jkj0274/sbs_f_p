@@ -185,60 +185,34 @@
                     </div>
                 </div>
             </div>
-            <div class="hidden border-t  border-gray-200">
-                <div class="w-[90%] mx-auto relative overflow-hidden border border-gray-300 bg-gray-100 text-sm mt-4 border-b border-t rounded-full">
-                    <input type="text" placeholder="질문을 입력해주세요." class=" py-2 pl-8 text-lg pr-4 bg-transparent focus:outline-none " />
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 ">
-                      <i class="fa-solid fa-magnifying-glass"></i>
-                      </span>
-                </div>
-                <div style='box-shadow:2px 3px 5px 0px #d9d9d9' class="main h-32 w-[90%] border border-gray-200 rounded-2xl mx-auto mt-6">
-                    <div class="cate "><a href="#" class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">#자바</a></div>
-                    <div class="mt-4">
-                        <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
-                    </div>
-                    <div class="mt-2 w-full sm:w-3/5 flex ml-5">
-                        <span class="text-sm font-semibold text-gray-400">조회수 3</span>
-                        <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
-                        <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
-                    </div>
-                </div>
-            </div>
-            <div class="detail-box w-[100%] h-[100%] absolute top-0 right-0 bg-white hidden lg:block border border-gray-200">
-                <button class="w-full flex justify-end">
-                    <span class="button1 text-2xl mt-2 mr-5 p-2"><i class="fa-solid fa-xmark"></i></span>
-                </button>
-                <div class="w-5/6 border-b border-gray-400 mx-auto relative">
-                    <div class="cate "><a href="#" class="back-btn ml-2 mt-3 px-2 p-2 sm:text-sm text-xs whitespace-nowrap inline-block">뒤로가기</a></div>
-                    <div class="mt-4">
-                        <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
-                    </div>
-                    <div>
-                        <button id="write-btn" class="write-btn btn btn-sm ml-auto absolute right-8 top-2 hidden sm:inline">글쓰기<i class="fa-solid fa-pen"></i></button>
-                    </div>
-                    <div class="mt-2 w-full flex ml-5">
-                        <span class="text-sm font-semibold text-gray-400">조회수 3</span>
-                        <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
-                        <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
+            <div class="cont block w-full h-24 border-b border-t border-gray-200" >
+                <iframe th:src="'/usr/qna/q/videoInList/' + ${lessonId}" class="w-full border-0" style="height: 500px; overflow-y:hidden"></iframe>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                      var iframe = document.querySelector('iframe');
+                      var height = window.innerHeight; // 브라우저 창의 현재 높이를 가져옵니다.
 
-                    </div>
-                    <div class=" mt-14 ml-6"><a href="#" class="text-sm whitespace-nowrap">QNA 내용이 들어갈 자리입니다.</a></div>
-                    <button class="btn ml-5 mt-12 mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                    </button>
-                </div>
-                <div class="comment text-sm flex p-2 mt-4 mb-4 w-3/4 mx-auto">
-           <span>
-             <p>댓글 작성 닉네임</p>
-             <p class="text-gray-500 text-center hidden sm:inline">1시간전</p>
-           </span>
-                    <span class="ml-4 mt-2 hidden sm:inline">댓글 내용입니다.</span>
-                    <!--아래는 댓글 수정 삭제 버튼 입니다.-->
-                    <div class=" ml-auto hidden sm:flex mt-1">
-                        <button class="btn btn-sm ml-auto ">수정</button>
-                        <button class="btn btn-error btn-sm ml-3">삭제</button>
-                    </div>
-                </div>
+                      iframe.style.height = height + 'px'; // iframe의 높이를 브라우저 창의 높이로 설정합니다.
+                    });
+                </script>
+                <script>
+                    function resizeIframe() {
+                      var iframe = document.querySelector('iframe');
+                      // iframe 상단 위치를 찾기 위해 getBoundingClientRect()를 사용합니다.
+                      var rect = iframe.getBoundingClientRect();
+                      // 뷰포트의 높이에서 iframe의 상단 위치를 뺍니다.
+                      var height = window.innerHeight - rect.top;
+
+                      // iframe의 높이를 조정합니다.
+                      iframe.style.height = height + 'px';
+                    }
+
+                    // DOMContentLoaded 이벤트가 발생할 때 함수를 실행합니다.
+                    document.addEventListener('DOMContentLoaded', resizeIframe);
+
+                    // 윈도우 resize 이벤트가 발생할 때 함수를 실행합니다.
+                    window.addEventListener('resize', resizeIframe);
+                </script>
             </div>
             <!--글쓰기 버튼 누르면 나오는 글쓰기 화면입니다.-->
             <div class="write-box overflow-scroll w-[100%] h-[100%] absolute top-0 right-0 bg-white hidden lg:block border border-gray-200">
@@ -267,16 +241,16 @@
 
                     <span class="p-2 ml-2 mt-3 text-sm">파일첨부 1</span>
                     <input type="file" name="file-input-medium" id="file-input-medium" class="block w-[99%] ml-2 mt-1  border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-2 focus:border-blue-800 focus:ring-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600
-    file:bg-gray-50 file:border-0
-    file:bg-gray-100 file:me-4
-    file:py-3 file:px-4
-    dark:file:bg-gray-700 dark:file:text-gray-400">
+                        file:bg-gray-50 file:border-0
+                        file:bg-gray-100 file:me-4
+                        file:py-3 file:px-4
+                        dark:file:bg-gray-700 dark:file:text-gray-400">
                     <span class="p-2 ml-2 mt-3 text-sm">파일첨부 2</span>
                     <input type="file" name="file-input-medium" id="file-input-medium-2" class="block w-[99%] ml-2 mt-1 border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-2 focus:border-blue-800 focus:ring-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600
-    file:bg-gray-50 file:border-0
-    file:bg-gray-100 file:me-4
-    file:py-3 file:px-4
-    dark:file:bg-gray-700 dark:file:text-gray-400">
+                        file:bg-gray-50 file:border-0
+                        file:bg-gray-100 file:me-4
+                        file:py-3 file:px-4
+                        dark:file:bg-gray-700 dark:file:text-gray-400">
                 </form>
                 <div class="p-4 mt-2 lg:mt-2 flex justify-center">
                     <a class="inline-block w-full text-center border border-blue-800 bg-blue-800 p-2 mb-3 mt-2 lg:mt-6 rounded-md hover:bg-blue-900">
@@ -427,73 +401,38 @@
                             </div>
                         </div>
                         <div id="tab02" class="hidden border-t mt-4 border-gray-200">
-                            <div class="w-[90%] mx-auto relative overflow-hidden border border-gray-300 bg-gray-100 text-sm mt-4 border-b border-t rounded-full">
-                                <input type="text" placeholder="질문을 입력해주세요." class=" py-2 pl-8 text-lg pr-4 bg-transparent focus:outline-none " />
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 ">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </span>
-                            </div>
-                            <div style='box-shadow:2px 3px 5px 0px #d9d9d9' class="main h-32 w-[90%] border border-gray-200 rounded-2xl mx-auto mt-6">
-                                <div class="cate "><a href="#" class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">#자바</a></div>
-                                <div class="mt-4">
-                                    <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
-                                </div>
-                                <div class="mt-2 w-full sm:w-3/5 flex ml-5">
-                                    <span class="text-sm font-semibold text-gray-400">조회수 3</span>
-                                    <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
-                                    <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
-                                </div>
-                            </div>
+
+                            <iframe th:src="'/usr/qna/q/videoInList/' + ${lessonId}" class="w-full border-0" style="height: 500px;"></iframe>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                  var iframe = document.querySelector('iframe');
+                                  var height = window.innerHeight; // 브라우저 창의 현재 높이를 가져옵니다.
+
+                                  iframe.style.height = height + 'px'; // iframe의 높이를 브라우저 창의 높이로 설정합니다.
+                                });
+                            </script>
+                            <script>
+                                function resizeIframe() {
+                                  var iframe = document.querySelector('iframe');
+                                  // iframe 상단 위치를 찾기 위해 getBoundingClientRect()를 사용합니다.
+                                  var rect = iframe.getBoundingClientRect();
+                                  // 뷰포트의 높이에서 iframe의 상단 위치를 뺍니다.
+                                  var height = window.innerHeight - rect.top;
+
+                                  // iframe의 높이를 조정합니다.
+                                  iframe.style.height = height + 'px';
+                                }
+
+                                // DOMContentLoaded 이벤트가 발생할 때 함수를 실행합니다.
+                                document.addEventListener('DOMContentLoaded', resizeIframe);
+
+                                // 윈도우 resize 이벤트가 발생할 때 함수를 실행합니다.
+                                window.addEventListener('resize', resizeIframe);
+                            </script>
                         </div>
                     </div>
                 </div>
             </section>
-        </div>
-        <!--아래는 모바일버전 게시판 클릭시 나타나는 글 입니다.-->
-        <div class="detail-box bg-white absolute flex flex-col w-full h-[100vh] -mt-4 hidden lg:hidden">
-            <div class="flex flex-row justify-end">
-                <button class="button1">
-                    <span class="text-2xl w-full flex mt-2 justify-end">
-                        <i class="fa-solid fa-xmark mr-3"></i>
-                    </span>
-                </button>
-            </div>
-            <div class="w-5/6 border-b border-gray-400 mx-auto">
-                <div>
-                    <button class="back-btn p-2 px-4 rounded-full bg-gray-100 hover:bg-gray-200 ml-4 lg:hidden inline"><i class="fa-solid fa-angle-left"></i></button>
-                </div>
-                <div class="cate "><a href="#" class="ml-4 mt-3 bg-blue-200 px-2 p-1 sm:text-sm text-xs whitespace-nowrap rounded-lg inline-block">#자바</a></div>
-                <div class="mt-4">
-                    <a href="#" class="text-md  sm:text-xl font-semibold whitespace-nowrap ml-4">QNA 게시판 제목입니다.</a>
-                </div>
-
-                <div class="mt-2 w-full flex ml-5">
-                    <span class="text-sm font-semibold text-gray-400">조회수 3</span>
-                    <span class="text-sm ml-4 whitespace-nowrap">작성자명</span>
-                    <span class="text-sm text-gray-500 px-2 inline-block whitespace-nowrap">2시간전</span>
-
-                </div>
-                <div class=" mt-14 ml-6"><a href="#" class="text-sm whitespace-nowrap">QNA 내용이 들어갈 자리입니다.</a></div>
-                <button class="btn ml-5 mt-12 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                </button>
-            </div>
-            <div class="comment text-sm flex p-2 mt-4 mb-4 w-3/4 mx-auto">
-           <span>
-             <p>닉네임</p>
-             <p class="text-gray-500 text-center lg:hidden inline">1시간전</p>
-           </span>
-                <span class="ml-4 mt-2 lg:hidden inline">댓글 내용입니다.</span>
-                <!--아래는 댓글 수정 삭제 버튼 입니다.-->
-                <div class=" ml-auto lg:hidden flex mt-1">
-
-                    <button class="btn btn-sm ml-auto ">수정</button>
-                    <button class="btn btn-error btn-sm ml-3">삭제</button>
-                </div>
-            </div>
-            <div>
-                <button class="write-box btn btn-md ml-auto absolute right-8 bottom-24 lg:hidden inline"><i class="fa-solid fa-pen"></i></button>
-            </div>
         </div>
     </div>
     <script>
